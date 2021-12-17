@@ -21,13 +21,14 @@ types.setTypeParser(1082, function (stringValue) {
 //Connect to the database
 
 isProduction = (process.env.NODE_ENV === "production");
-const pool = new Pool({
-	host:	isProduction? "ec2-18-211-185-154.compute-1.amazonaws.com":process.env.PGHOST,
-	port:	isProduction? 5432:process.env.PGPORT,
-	user:	isProduction? "nmsqraaifwfpuh":process.env.PGUSER,
-	password:	isProduction? "39413324caf966d5849359279d376ad392d376d0d23e7ba8b7a0dfe7fcac093a":process.env.PGPASSWORD,
-	database:	isProduction? "d69rq97kelg63o":process.env.PGDATABASE,
-});
+var pool;
+if(isProduction)	{
+	pool = new Pool({
+		connectionString: process.env.DATABASE_URL
+	});
+} else	{
+	pool = new Pool();
+}
 
 module.exports = {
 	query: (text, params) => pool.query(text, params),

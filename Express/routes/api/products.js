@@ -8,14 +8,14 @@ const tokenCheck = require("../../middleware/tokenCheck");
 // Create new product
 
 router.post("/", tokenCheck, async (req, res) => {
-	await db.query("BEGIN");
-
 	try {
+		await db.query("BEGIN");
+		
 		const { product, quantity } = req.body;
-		if (!Number.isInteger(quantity) || !(typeof (product) === 'string'))
+		if(!product || !quantity)
 			return res.status(400).json({
-				status: "failure",
-				msg: "Bad parameter types"
+				status:	"failure",
+				msg:	"Missing request body fields"
 			});
 
 		const newProduct = await db.query(
@@ -49,14 +49,14 @@ router.get("/", async (req, res) => {
 // Update product quantity
 
 router.put("/", tokenCheck, async (req, res) => {
-	await db.query("BEGIN");
-
 	try {
+		await db.query("BEGIN");
+		
 		const { id, quantity } = req.body;
-		if (!Number.isInteger(id) || !Number.isInteger(quantity))
+		if(!id || !quantity)
 			return res.status(400).json({
-				status: "failure",
-				msg: "Bad parameter types"
+				status:	"failure",
+				msg:	"Missing request body fields"
 			});
 
 		const updatedProduct = await db.query(
@@ -81,14 +81,14 @@ router.put("/", tokenCheck, async (req, res) => {
 // Delete product
 
 router.delete("/", tokenCheck, async (req, res) =>	{
-	await db.query("BEGIN");
-	
 	try {
+		await db.query("BEGIN");
+		
 		const id = parseInt(req.query.id);
-		if (!Number.isInteger(id))
+		if (!id || !Number.isInteger(id))
 			return res.status(400).json({
 				status: "failure",
-				msg:	"Bad parameter types"
+				msg:	"Bad parameter"
 			});
 		
 		const deleted = await db.query(

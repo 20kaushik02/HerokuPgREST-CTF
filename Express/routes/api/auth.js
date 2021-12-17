@@ -12,10 +12,15 @@ const tokenCheck = require("../../middleware/tokenCheck");
 // Create new user
 
 router.post("/register", credCheck, async (req, res) => {
-	await db.query("BEGIN");
-
 	try {
+		await db.query("BEGIN");
+	
 		const { username, password, phone, dob } = req.body;
+		if(!username || !password || !phone || !dob)
+			res.status(400).json({
+				status:	"failure",
+				msg:	"Missing request body fields"
+			});
 		const user = await db.query(
 			"SELECT * FROM users WHERE username = $1",
 			[username]
@@ -49,10 +54,15 @@ router.post("/register", credCheck, async (req, res) => {
 // User login
 
 router.post("/login", credCheck, async (req, res) => {
-	await db.query("BEGIN");
-
 	try {
+		await db.query("BEGIN");
+	
 		const { username, password } = req.body;
+		if(!username || !password)
+			return res.status(400).json({
+				status:	"failure",
+				msg:	"Missing request body fields"
+			});
 		console.log(username);
 		const user = await db.query(
 			"SELECT * FROM users WHERE username = $1",
@@ -101,11 +111,16 @@ router.get("/", async (req, res) =>	{
 // Update user phone no. and DOB
 
 router.put("/", tokenCheck, async (req, res) => {
-	await db.query("BEGIN");
-
 	try {
+		await db.query("BEGIN");
+
 		const { verified_user } = req;
 		const { phone, dob } = req.body;
+		if(!phone || !dob)
+			return res.status(400).json({
+				status:	"failure",
+				msg:	"Missing request body fields"
+			})
 
 		const updatedUser = await db.query(
 			"UPDATE users SET phone=$1, dob=$2 WHERE username = $3 RETURNING phone, dob",
@@ -131,9 +146,9 @@ router.put("/", tokenCheck, async (req, res) => {
 // Delete user
 
 router.delete("/", tokenCheck, async (req, res) => {
-	await db.query("BEGIN");
-	
 	try {
+		await db.query("BEGIN");
+		
 		const { verified_user } = req;
 		const deleted = await db.query(
 			"DELETE FROM users WHERE username = $1 RETURNING username, phone, dob",
