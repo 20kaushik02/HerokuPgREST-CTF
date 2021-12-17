@@ -21,7 +21,7 @@ router.post("/", tokenCheck, async (req, res) => {
 		const newProduct = await db.query(
 			"INSERT INTO products (product, quantity) VALUES ($1, $2) RETURNING *",
 			[product, quantity]
-		);
+		).catch(err => { throw err; });
 		console.log(newProduct.rows[0]);
 		
 		await db.query("COMMIT");
@@ -29,6 +29,10 @@ router.post("/", tokenCheck, async (req, res) => {
 	} catch (error) {
 		console.error(error);
 		await db.query("ROLLBACK");
+		return res.status(500).json({
+			status: "failure",
+			msg:	`Error: ${error.message}`
+		});
 	}
 });
 
@@ -38,11 +42,15 @@ router.get("/", async (req, res) => {
 	try {
 		const products = await db.query(
 			"SELECT * FROM products ORDER BY id"
-		);
+		).catch(err => { throw err; });
 		console.log(products.rows);
 		return res.status(200).json(products.rows);
 	} catch (error) {
 		console.error(error);
+		return res.status(500).json({
+			status: "failure",
+			msg:	`Error: ${error.message}`
+		});
 	}
 });
 
@@ -62,11 +70,11 @@ router.put("/", tokenCheck, async (req, res) => {
 		const updatedProduct = await db.query(
 			"UPDATE products SET quantity = $1 WHERE id = $2 RETURNING *",
 			[quantity, id]
-		);
+		).catch(err => { throw err; });
 		if (updatedProduct.rows.length === 0)
 			return res.status(404).json({
 				status: "failure",
-				msg: "Product not found"
+				msg:	"Product not found"
 			});
 		console.log(updatedProduct.rows[0]);
 
@@ -75,6 +83,10 @@ router.put("/", tokenCheck, async (req, res) => {
 	} catch (error) {
 		console.error(error);
 		await db.query("ROLLBACK");
+		return res.status(500).json({
+			status: "failure",
+			msg:	`Error: ${error.message}`
+		});
 	}
 });
 
@@ -94,7 +106,7 @@ router.delete("/", tokenCheck, async (req, res) =>	{
 		const deleted = await db.query(
 			"DELETE FROM products WHERE id = $1 RETURNING *",
 			[id]
-		);
+		).catch(err => { throw err; });
 		if(deleted.rows.length === 0)
 			return res.status(404).json({
 				status:	"failure",
@@ -107,6 +119,10 @@ router.delete("/", tokenCheck, async (req, res) =>	{
 	} catch (error) {
 		console.error(error);
 		await db.query("ROLLBACK");
+		return res.status(500).json({
+			status: "failure",
+			msg:	`Error: ${error.message}`
+		});
 	}
 });
 
