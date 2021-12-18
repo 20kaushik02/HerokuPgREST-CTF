@@ -9,7 +9,7 @@ const tokenCheck = require("../../middleware/tokenCheck");
 
 router.post("/", tokenCheck, async (req, res) => {
 	try {
-		await db.query("BEGIN");
+		await db.query("BEGIN").catch(err => { throw err; });
 		
 		const { product, quantity } = req.body;
 		if(!product || !quantity)
@@ -24,7 +24,7 @@ router.post("/", tokenCheck, async (req, res) => {
 		).catch(err => { throw err; });
 		console.log(newProduct.rows[0]);
 		
-		await db.query("COMMIT");
+		await db.query("COMMIT").catch(err => { throw err; });
 		return res.status(201).json(newProduct.rows[0]);
 	} catch (error) {
 		console.error(error);
@@ -58,7 +58,7 @@ router.get("/", async (req, res) => {
 
 router.put("/", tokenCheck, async (req, res) => {
 	try {
-		await db.query("BEGIN");
+		await db.query("BEGIN").catch(err => { throw err; });
 		
 		const { id, quantity } = req.body;
 		if(!id || !quantity)
@@ -78,7 +78,7 @@ router.put("/", tokenCheck, async (req, res) => {
 			});
 		console.log(updatedProduct.rows[0]);
 
-		await db.query("COMMIT");
+		await db.query("COMMIT").catch(err => { throw err; });
 		return res.status(201).json(updatedProduct.rows[0]);
 	} catch (error) {
 		console.error(error);
@@ -94,7 +94,7 @@ router.put("/", tokenCheck, async (req, res) => {
 
 router.delete("/", tokenCheck, async (req, res) =>	{
 	try {
-		await db.query("BEGIN");
+		await db.query("BEGIN").catch(err => { throw err; });
 		
 		const id = parseInt(req.query.id);
 		if (!id || !Number.isInteger(id))
@@ -114,7 +114,7 @@ router.delete("/", tokenCheck, async (req, res) =>	{
 			});
 		console.log(deleted.rows[0]);
 
-		await db.query("COMMIT");
+		await db.query("COMMIT").catch(err => { throw err; });
 		return res.status(200).json(deleted.rows[0]);
 	} catch (error) {
 		console.error(error);

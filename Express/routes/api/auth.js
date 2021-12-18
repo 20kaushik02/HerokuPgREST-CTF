@@ -13,10 +13,10 @@ const tokenCheck = require("../../middleware/tokenCheck");
 
 router.post("/register", credCheck, async (req, res) => {
 	try {
-		await db.query("BEGIN");
+		await db.query("BEGIN").catch(err => { throw err; });
 
-		const { username, password, phone, dob } = req.body;
-		if (!username || !password || !phone || !dob)
+		const { username, password, name, phone, dob } = req.body;
+		if (!username || !password || !name || !phone || !dob)
 			res.status(400).json({
 				status: "failure",
 				msg:	"Missing request body fields"
@@ -36,14 +36,14 @@ router.post("/register", credCheck, async (req, res) => {
 		const salt = await bcrypt.genSalt(10);
 		const bcryptPassword = await bcrypt.hash(password, salt);
 		const newUser = await db.query(
-			"INSERT INTO users (username, password, phone, dob)	VALUES ($1, $2, $3, $4) RETURNING *",
-			[username, bcryptPassword, phone, dob]
+			"INSERT INTO users (username, password, name, phone, dob)	VALUES ($1, $2, $3, $4, $5) RETURNING *",
+			[username, bcryptPassword, name, phone, dob]
 		).catch(err => { throw err; });
 
 		console.log(newUser.rows[0]);
 		const jwtToken = jwtGenerator(newUser.rows[0].username);
 
-		await db.query("COMMIT");
+		await db.query("COMMIT").catch(err => { throw err; });
 		return res.status(201).json(jwtToken);
 	} catch (error) {
 		console.error(error);
@@ -59,7 +59,7 @@ router.post("/register", credCheck, async (req, res) => {
 
 router.post("/login", credCheck, async (req, res) => {
 	try {
-		await db.query("BEGIN");
+		await db.query("BEGIN").catch(err => { throw err; });
 
 		const { username, password } = req.body;
 		if (!username || !password)
@@ -89,7 +89,7 @@ router.post("/login", credCheck, async (req, res) => {
 
 		const jwtToken = jwtGenerator(user.rows[0].username);
 
-		await db.query("COMMIT");
+		await db.query("COMMIT").catch(err => { throw err; });
 
 		return res.json(jwtToken);
 	} catch (error) {
@@ -107,7 +107,7 @@ router.post("/login", credCheck, async (req, res) => {
 router.get("/", async (req, res) => {
 	try {
 		const users = await db.query(
-			"SELECT username, phone, dob FROM users ORDER BY username"
+			"SELECT name, phone, dob FROM users ORDER BY name"
 		).catch(err => { throw err; });
 		console.log(users.rows);
 		return res.status(200).json(users.rows);
@@ -124,19 +124,19 @@ router.get("/", async (req, res) => {
 
 router.put("/", tokenCheck, async (req, res) => {
 	try {
-		await db.query("BEGIN");
+		await db.query("BEGIN").catch(err => { throw err; });
 
 		const { verified_user } = req;
-		const { phone, dob } = req.body;
-		if (!phone || !dob)
+		const { name, phone, dob } = req.body;
+		if (!name || !phone || !dob)
 			return res.status(400).json({
 				status: "failure",
 				msg:	"Missing request body fields"
 			})
 
 		const updatedUser = await db.query(
-			"UPDATE users SET phone=$1, dob=$2 WHERE username = $3 RETURNING phone, dob",
-			[phone, dob, verified_user]
+			"UPDATE users SET name=$1, phone=$2, dob=$3 WHERE username = $4 RETURNING name, phone, dob",
+			[name, phone, dob, verified_user]
 		).catch(err => { throw err; });
 
 		if (updatedUser.rows.length === 0)
@@ -146,7 +146,7 @@ router.put("/", tokenCheck, async (req, res) => {
 			});
 		console.log(updatedUser.rows[0]);
 
-		await db.query("COMMIT");
+		await db.query("COMMIT").catch(err => { throw err; });
 
 		return res.status(201).json(updatedUser.rows[0]);
 	} catch (error) {
@@ -163,11 +163,11 @@ router.put("/", tokenCheck, async (req, res) => {
 
 router.delete("/", tokenCheck, async (req, res) => {
 	try {
-		await db.query("BEGIN");
+		await db.query("BEGIN").catch(err => { throw err; });
 
 		const { verified_user } = req;
 		const deleted = await db.query(
-			"DELETE FROM users WHERE username = $1 RETURNING username, phone, dob",
+			"DELETE FROM users WHERE username = $1 RETURNING name, phone, dob",
 			[verified_user]
 		).catch(err => { throw err; });
 
@@ -178,7 +178,7 @@ router.delete("/", tokenCheck, async (req, res) => {
 			});
 		console.log(deleted.rows[0]);
 
-		await db.query("COMMIT");
+		await db.query("COMMIT").catch(err => { throw err; });
 		return res.status(200).json(deleted.rows[0]);
 	} catch (error) {
 		console.error(error);
