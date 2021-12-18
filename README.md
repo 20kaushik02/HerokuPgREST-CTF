@@ -12,15 +12,18 @@
 <li><strong>PGDATABASE</strong> = db_name</li>
 <li><strong>jwtSecret</strong> = 'this is a secret phrase for JWT token encryption'</li>
 <li><strong>NODE_ENV</strong> = development</li>
+</ul>
 </code><br>
 <h3>FOR PRODUCTION ENVIRONMENTS</h3>
 <h4>Configuration/environment variables of the hosted application must be set in accordance with the following:</h4>
 <code>
+<ul>
 <li><strong>DATABASE_URL</strong> must be of the form of <code>postgres://user:password@host:port/database</code></li>
 <li><strong>jwtSecret</strong> = 'this is a secret phrase for JWT token encryption'</li>
 <li><strong>NODE_ENV</strong> = production</li>
 <li><strong>PGSSL_MODE</strong> = no-verify</li>
 <li><strong>PORT</strong> = random_port_such_as_9001</li>
+</ul>
 </code><br>
 <h4><a href="https://herokupgrest-ctf.herokuapp.com">App URL: https://herokupgrest-ctf.herokuapp.com(Heroku)</a></h4><br>
 Routes:
