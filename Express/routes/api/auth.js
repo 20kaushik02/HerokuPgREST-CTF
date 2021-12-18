@@ -17,7 +17,7 @@ router.post("/register", credCheck, async (req, res) => {
 
 		const { username, password, name, phone, dob } = req.body;
 		if (!username || !password || !name || !phone || !dob)
-			res.status(400).json({
+			return res.status(400).json({
 				status: "failure",
 				msg:	"Missing request body fields"
 			});
